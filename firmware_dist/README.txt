@@ -5,13 +5,13 @@ ESPECIFICACOES:
 - Placa: MKS Robin Nano V1.2
 - Display: MKS TFT35 (480x320 FSMC)
 - Interface: TFT_COLOR_UI (Marlin Default Touch-Friendly)
-- Data compilacao: 03/12/2025 21:02
+- Data compilacao: 25/02/2026
 
 TAMANHO DO FIRMWARE:
 - Arquivo: Robin_nano35.bin
-- Tamanho: 218.41 KB
-- Flash usado: 47.1% (246820 / 524288 bytes)
-- RAM usada: 78.9% (51688 / 65536 bytes)
+- Tamanho: 246.5 KB
+- Flash usado: 48.1% (252444 / 524288 bytes)
+- RAM usada: 81.7% (53560 / 65536 bytes)
 
 CONFIGURACOES APLICADAS:
 ========================
@@ -31,6 +31,22 @@ HARDWARE ELEGOO NEPTUNE 2:
 - Temp max bed: 110°C
 - Temp min extrusao: 170°C
 - PID hotend: Kp=22.2, Ki=1.08, Kd=114
+
+DRIVERS TMC2209 STANDALONE:
+- X, Y, Z, E0: TMC2209_STANDALONE (sem UART - configurado via MS1/MS2)
+- Correntes: XY=580mA RMS, Z=580mA RMS, E=650mA RMS
+- Corrente homing: 400mA RMS (protecao em caso de colisao)
+- Microstepping: 16 passos (com interpolacao 256x pelo TMC2209)
+- Chopper: CHOPPER_DEFAULT_24V (correto para fonte 24V da Neptune 2)
+- stealthChop: ATIVO abaixo de 80mm/s (XY) / 5mm/s (Z) / 50mm/s (E)
+- HYBRID_THRESHOLD: spreadCycle acima dos thresholds (mais torque)
+
+INPUT SHAPING (Anti-ghosting/ringing):
+- INPUT_SHAPING_X: ATIVO - Freq: 35.0 Hz, Zeta: 0.1
+- INPUT_SHAPING_Y: ATIVO - Freq: 35.0 Hz, Zeta: 0.1
+- Calibrar com: M593 X F<freq> D<zeta> ; M593 Y F<freq> D<zeta>
+- Menu de ajuste disponivel no TFT: Configuration > Input Shaping
+- Salvar apos calibrar: M500
 
 RECURSOS HABILITADOS:
 - USB Serial (porta -1) - comunicacao via terminal

@@ -1241,25 +1241,27 @@
  *
  * Tune with M593 D<factor> F<frequency>
  */
-//#define INPUT_SHAPING_X
-//#define INPUT_SHAPING_Y
+// Input Shaping (ZV) - DESABILITADO TEMPORARIAMENTE PARA DIAGNOSTICO
+// Reativar apos confirmar que skip de passos nao ocorre sem shaping
+// #define INPUT_SHAPING_X
+// #define INPUT_SHAPING_Y
 //#define INPUT_SHAPING_Z
 #if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
   #if ENABLED(INPUT_SHAPING_X)
-    #define SHAPING_FREQ_X  40.0        // (Hz) The default dominant resonant frequency on the X axis.
-    #define SHAPING_ZETA_X   0.15       // Damping ratio of the X axis (range: 0.0 = no damping to 1.0 = critical damping).
+    #define SHAPING_FREQ_X  35.0        // (Hz) Frequencia ressonante X - Neptune 2. Ajuste fino com M593 X F<valor>
+    #define SHAPING_ZETA_X   0.1        // Damping ratio X (0.0 = sem amortecimento, 0.1 recomendado para inicio)
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
-    #define SHAPING_FREQ_Y  40.0        // (Hz) The default dominant resonant frequency on the Y axis.
-    #define SHAPING_ZETA_Y   0.15       // Damping ratio of the Y axis (range: 0.0 = no damping to 1.0 = critical damping).
+    #define SHAPING_FREQ_Y  35.0        // (Hz) Frequencia ressonante Y - Neptune 2 (bed slinger, tende a ser menor)
+    #define SHAPING_ZETA_Y   0.1        // Damping ratio Y
   #endif
   #if ENABLED(INPUT_SHAPING_Z)
-    #define SHAPING_FREQ_Z  40.0        // (Hz) The default dominant resonant frequency on the Z axis.
-    #define SHAPING_ZETA_Z   0.15       // Damping ratio of the Z axis (range: 0.0 = no damping to 1.0 = critical damping).
+    #define SHAPING_FREQ_Z  40.0        // (Hz) Frequencia Z
+    #define SHAPING_ZETA_Z   0.15
   #endif
-  //#define SHAPING_MIN_FREQ  20.0      // (Hz) By default the minimum of the shaping frequencies. Override to affect SRAM usage.
-  //#define SHAPING_MAX_STEPRATE 10000  // By default the maximum total step rate of the shaped axes. Override to affect SRAM usage.
-  //#define SHAPING_MENU                // Add a menu to the LCD to set shaping parameters.
+  #define SHAPING_MIN_FREQ  20.0        // (Hz) Frequencia minima suportada. Afeta uso de SRAM.
+  //#define SHAPING_MAX_STEPRATE 10000  // Override para controlar uso de SRAM.
+  #define SHAPING_MENU                  // Adiciona menu no LCD para ajustar frequencias (M593 via UI)
 #endif
 
 // @section motion
@@ -3082,13 +3084,13 @@
   #endif
 
   #if AXIS_IS_TMC_CONFIG(X)
-    #define X_CURRENT       800        // (mA) RMS current. Multiply by 1.414 for peak current.
-    #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for homing. (Typically lower than *_CURRENT.)
-    #define X_MICROSTEPS     16        // 0..256
-    #define X_RSENSE          0.11
-    #define X_CHAIN_POS      -1        // -1..0: Not chained. 1: MCU MOSI connected. 2: Next in chain, ...
-    //#define X_INTERPOLATE  true      // Enable to override 'INTERPOLATE' for the X axis
-    //#define X_HOLD_MULTIPLIER 0.5    // Enable to override 'HOLD_MULTIPLIER' for the X axis
+    #define X_CURRENT       580        // (mA) RMS current. Neptune 2 NEMA17 ~1A rated, 580mA RMS for cool/quiet.
+    #define X_CURRENT_HOME  400        // (mA) RMS current for homing. Lower to prevent damage on crash.
+    #define X_MICROSTEPS     16        // 0..256 - 16 microstepping via MS1/MS2 pins (standalone)
+    #define X_RSENSE          0.11     // TMC2209 module sense resistor (0.11 Ohm)
+    #define X_CHAIN_POS      -1        // -1..0: Not chained.
+    //#define X_INTERPOLATE  true      // INTERPOLATE=true globally handles 256 micro-interpolation
+    //#define X_HOLD_MULTIPLIER 0.5
   #endif
 
   #if AXIS_IS_TMC_CONFIG(X2)
@@ -3102,8 +3104,8 @@
   #endif
 
   #if AXIS_IS_TMC_CONFIG(Y)
-    #define Y_CURRENT       800
-    #define Y_CURRENT_HOME  Y_CURRENT
+    #define Y_CURRENT       580        // (mA) RMS - Neptune 2 Y motor
+    #define Y_CURRENT_HOME  400        // (mA) RMS for homing
     #define Y_MICROSTEPS     16
     #define Y_RSENSE          0.11
     #define Y_CHAIN_POS      -1
@@ -3122,8 +3124,8 @@
   #endif
 
   #if AXIS_IS_TMC_CONFIG(Z)
-    #define Z_CURRENT       800
-    #define Z_CURRENT_HOME  Z_CURRENT
+    #define Z_CURRENT       580        // (mA) RMS - Neptune 2 dual Z motores em paralelo no mesmo driver
+    #define Z_CURRENT_HOME  400        // (mA) RMS for homing
     #define Z_MICROSTEPS     16
     #define Z_RSENSE          0.11
     #define Z_CHAIN_POS      -1
@@ -3222,7 +3224,7 @@
   #endif
 
   #if AXIS_IS_TMC_CONFIG(E0)
-    #define E0_CURRENT      800
+    #define E0_CURRENT      650        // (mA) RMS - extrusor direto Neptune 2; maior que XYZ por exigir torque
     #define E0_MICROSTEPS    16
     #define E0_RSENSE         0.11
     #define E0_CHAIN_POS     -1
@@ -3420,7 +3422,7 @@
    * Define your own with:
    * { <off_time[1..15]>, <hysteresis_end[-3..12]>, hysteresis_start[1..8] }
    */
-  #define CHOPPER_TIMING CHOPPER_DEFAULT_12V        // All axes (override below)
+  #define CHOPPER_TIMING CHOPPER_DEFAULT_24V        // Neptune 2 uses 24V PSU
   //#define CHOPPER_TIMING_X  CHOPPER_TIMING        // For X Axes (override below)
   //#define CHOPPER_TIMING_X2 CHOPPER_TIMING_X
   //#define CHOPPER_TIMING_Y  CHOPPER_TIMING        // For Y Axes (override below)
@@ -3474,30 +3476,30 @@
    * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
    * M913 X/Y/Z/E to live tune the setting
    */
-  //#define HYBRID_THRESHOLD
+  #define HYBRID_THRESHOLD         // stealthChop abaixo do threshold, spreadCycle acima (melhor para Neptune 2)
 
-  #define X_HYBRID_THRESHOLD     100  // [mm/s]
-  #define X2_HYBRID_THRESHOLD    100
-  #define Y_HYBRID_THRESHOLD     100
-  #define Y2_HYBRID_THRESHOLD    100
-  #define Z_HYBRID_THRESHOLD       3
-  #define Z2_HYBRID_THRESHOLD      3
-  #define Z3_HYBRID_THRESHOLD      3
-  #define Z4_HYBRID_THRESHOLD      3
+  #define X_HYBRID_THRESHOLD      80  // [mm/s] - silencioso abaixo de 80mm/s, spreadCycle acima
+  #define X2_HYBRID_THRESHOLD     80
+  #define Y_HYBRID_THRESHOLD      80  // [mm/s]
+  #define Y2_HYBRID_THRESHOLD     80
+  #define Z_HYBRID_THRESHOLD       5  // [mm/s] - Z lento, stealthChop quase sempre
+  #define Z2_HYBRID_THRESHOLD      5
+  #define Z3_HYBRID_THRESHOLD      5
+  #define Z4_HYBRID_THRESHOLD      5
   #define I_HYBRID_THRESHOLD       3  // [linear=mm/s, rotational=°/s]
   #define J_HYBRID_THRESHOLD       3  // [linear=mm/s, rotational=°/s]
   #define K_HYBRID_THRESHOLD       3  // [linear=mm/s, rotational=°/s]
   #define U_HYBRID_THRESHOLD       3  // [mm/s]
   #define V_HYBRID_THRESHOLD       3
   #define W_HYBRID_THRESHOLD       3
-  #define E0_HYBRID_THRESHOLD     30
-  #define E1_HYBRID_THRESHOLD     30
-  #define E2_HYBRID_THRESHOLD     30
-  #define E3_HYBRID_THRESHOLD     30
-  #define E4_HYBRID_THRESHOLD     30
-  #define E5_HYBRID_THRESHOLD     30
-  #define E6_HYBRID_THRESHOLD     30
-  #define E7_HYBRID_THRESHOLD     30
+  #define E0_HYBRID_THRESHOLD     50  // [mm/s] - extrusor: spreadCycle acima de 50mm/s
+  #define E1_HYBRID_THRESHOLD     50
+  #define E2_HYBRID_THRESHOLD     50
+  #define E3_HYBRID_THRESHOLD     50
+  #define E4_HYBRID_THRESHOLD     50
+  #define E5_HYBRID_THRESHOLD     50
+  #define E6_HYBRID_THRESHOLD     50
+  #define E7_HYBRID_THRESHOLD     50
 
   /**
    * Use StallGuard to home / probe X, Y, Z.
